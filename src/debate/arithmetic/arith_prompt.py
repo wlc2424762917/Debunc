@@ -50,7 +50,7 @@ if __name__ == "__main__":
         response_dict: Debates = {}
         all_trial_data.append(response_dict)
         for q_i in trange(questions):
-            question, answer = gen_question()
+            question, answer = gen_question()  # a+b+c+d = ans
             agent_contexts: Debate = [
                 [{"role": "user", "content": question}] for agent in range(agents)
             ]
@@ -60,16 +60,16 @@ if __name__ == "__main__":
                 if round != 0:
                     uncertainties = []
                     for agent in agent_contexts:
-                        agent = agent[-1]
+                        agent = agent[-1]  # get the answer, e.g. [{"role": "assistant", "content": "It is 4."}, "uncertainty": 0.1]
                         uncertainties.append(agent["uncertainty"])
                     confidences = unc_to_confidence(np.array(uncertainties))
                 for i, agent_context in enumerate(agent_contexts):
                     if confidences is not None:
                         agent_contexts_other = (
-                            agent_contexts[:i] + agent_contexts[i + 1 :]
+                            agent_contexts[:i] + agent_contexts[i + 1:]
                         )
                         other_confidences = np.concatenate(
-                            (confidences[:i], confidences[i + 1 :])
+                            (confidences[:i], confidences[i + 1:])
                         )
                         message = construct_message_prompt(
                             other_agents=agent_contexts_other,
