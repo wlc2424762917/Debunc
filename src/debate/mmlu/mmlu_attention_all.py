@@ -15,25 +15,29 @@ from lm_polygraph.estimators import MeanTokenEntropy, TokenSAR
 from models.model import WhiteboxModel
 from tqdm import trange
 from transformers import AutoTokenizer
+import os
 
-model_name = "mistralai/Mistral-7B-Instruct-v0.2"
+model_name = "/data/hf_models/Mistral-7B-Instruct"
+# model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
+print(f"Loading model {model_name}")
 model = WhiteboxModel.from_pretrained(
     model_name,
     device_map="auto",
     torch_dtype=torch.bfloat16,
 )
+model_name_sim = model_name.split("/")[-1]
 
 ue_method = MeanTokenEntropy()
 
 if __name__ == "__main__":
     agents = 3
     rounds = 3
-    trials = 5
-
+    trials = 1
+    print(f"saving to results/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{ue_method.__class__.__name__}.json")
     for num_shots in [0, 5]:
         questions = json.load(open(f"data/qas_{num_shots}_shot.json"))
-        filename = f"results/{os.path.basename(__file__)[:-3]}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}.json"
+        filename = f"results/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}.json"
 
         all_trial_data = []
         current_trial = 0

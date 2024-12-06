@@ -20,7 +20,7 @@ from tqdm import trange
 from transformers import AutoTokenizer
 
 # model_name = "mistralai/Mistral-7B-Instruct-v0.2"
-model_name = "/data/hf_models/Llama-3.1-8B-Instruct"
+model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = WhiteboxModel.from_pretrained(
     model_name,

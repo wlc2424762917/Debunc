@@ -114,5 +114,6 @@ def get_stats(filename):
 
 
 if __name__ == "__main__":
-    FILENAME = ""
+    FILENAME = "/home/wanglichao/debunc/arith_3_3_5_prompt_MeanTokenEntropy.json"
     eval(FILENAME)
+    get_stats(FILENAME)
