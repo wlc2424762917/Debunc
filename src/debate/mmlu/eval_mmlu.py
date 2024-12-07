@@ -136,5 +136,7 @@ def uncertainty_stats(filename):
 
 if __name__ == "__main__":
     # filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_all_3_3_1_0_MeanTokenEntropy.json"
-    filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_all_model_name_sim_3_3_1_5_MeanTokenEntropy.json"
+    # filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_all_model_name_sim_3_3_1_5_MeanTokenEntropy.json"
+    # filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_all_model_name_sim_3_3_5_0_MeanTokenEntropy.json"
+    filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_all_model_name_sim_Mistral-7B-Instruct_3_3_1_5_MeanTokenEntropy.json"
     eval(filename)
