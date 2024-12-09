@@ -1,4 +1,5 @@
 import json
+
 import numpy as np
 import torch
 from debate.gen_utils import (
@@ -12,57 +13,31 @@ from debate.mmlu.common import (
 )
 from lm_polygraph.estimators import MeanTokenEntropy, TokenSAR
 from models.model import WhiteboxModel
-from transformers import LlamaForCausalLM, LlamaTokenizer
-from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
-from lm_polygraph.utils.generation_parameters import GenerationParameters
 from tqdm import trange
+from transformers import AutoTokenizer
 import os
 import time
-os.environ.get("PYTORCH_CUDA_ALLOC_CONF")
+
 # model_name = "/data/hf_models/Mistral-7B-Instruct"
-# model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
-model_name = "/data/hf_models/Llama-3.1-8B-Instruct"
+model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 print(f"Loading model {model_name}")
-
-config = AutoConfig.from_pretrained(model_name)
-config.max_position_embeddings = 8192  # 修改最大位置嵌入
-
 model = WhiteboxModel.from_pretrained(
     model_name,
     device_map="auto",
-    # torch_dtype=torch.bfloat16,
-    config=config,
+    torch_dtype=torch.bfloat16,
 )
-# model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
-# model_llama = LlamaForCausalLM.from_pretrained(model_name, device_map="auto")
-# print(model_llama)
-#
-# tokenizer = AutoTokenizer.from_pretrained(
-#             model_name,
-#             device_map="auto"
-#         )
-#
-# model_llama.eval()
-# if tokenizer.pad_token is None:
-#     tokenizer.pad_token = tokenizer.eos_token
-# generation_params = GenerationParameters({})
-# model = WhiteboxModel(
-#     model_llama, tokenizer, model_name, "CausalLM", generation_params
-# )
-
-# quit()
 model_name_sim = model_name.split("/")[-1]
 
 ue_method = MeanTokenEntropy()
 
 if __name__ == "__main__":
-    agents = 6
-    rounds = 5
+    agents = 4
+    rounds = 3
     trials = 1
     print(f"saving to results/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{ue_method.__class__.__name__}.json")
-    for num_shots in [0]:
-        questions = json.load(open("/home/wanglichao/debunc/src/subset_data_mmlu.json"))
+    for num_shots in [0, 5]:
+        questions = json.load(open(f"data/qas_{num_shots}_shot.json"))
         filename = f"results/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}.json"
 
         print(f"start agent: {agents}, rounds: {rounds}, trials: {trials}, num_shots: {num_shots}")

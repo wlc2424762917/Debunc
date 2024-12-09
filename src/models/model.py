@@ -19,6 +19,7 @@ from transformers import (
     PreTrainedTokenizer,
 )
 from models.modeling_llama import LlamaForCausalLM
+# from transformers import LlamaForCausalLM
 from models.modeling_mistral import MistralForCausalLM
 
 from lm_polygraph.utils.generation_parameters import GenerationParameters
@@ -437,16 +438,25 @@ class WhiteboxModel(Model):
         Parameters:
             model_path (str): model path in HuggingFace.
         """
-
+        # print(generation_params) {}
         generation_params = GenerationParameters(**generation_params)
 
         model_type = "CausalLM"
         model = None
+        # print(model_path)
         if "llama" in model_path.lower():
+            print("loading llama model")
+            print(kwargs)
             model = LlamaForCausalLM.from_pretrained(
                 model_path,
                 **kwargs,
             )
+            # model = AutoModelForCausalLM.from_pretrained(
+            #     model_path,
+            #     **kwargs,
+            #     # device_map="auto",
+            #     # torch_dtype=torch.bfloat16,
+            # )
         elif "mistral" in model_path.lower():
             model = MistralForCausalLM.from_pretrained(
                 model_path,
