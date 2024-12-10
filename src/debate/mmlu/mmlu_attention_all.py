@@ -1,3 +1,4 @@
+import argparse
 import json
 import numpy as np
 import torch
@@ -18,52 +19,87 @@ from lm_polygraph.utils.generation_parameters import GenerationParameters
 from tqdm import trange
 import os
 import time
+
 os.environ.get("PYTORCH_CUDA_ALLOC_CONF")
-# model_name = "/data/hf_models/Mistral-7B-Instruct"
-# model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
-model_name = "/data/hf_models/Llama-3.1-8B-Instruct"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-print(f"Loading model {model_name}")
 
-config = AutoConfig.from_pretrained(model_name)
-config.max_position_embeddings = 8192  # 修改最大位置嵌入
 
-model = WhiteboxModel.from_pretrained(
-    model_name,
-    device_map="auto",
-    # torch_dtype=torch.bfloat16,
-    config=config,
-)
-# model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
-# model_llama = LlamaForCausalLM.from_pretrained(model_name, device_map="auto")
-# print(model_llama)
-#
-# tokenizer = AutoTokenizer.from_pretrained(
-#             model_name,
-#             device_map="auto"
-#         )
-#
-# model_llama.eval()
-# if tokenizer.pad_token is None:
-#     tokenizer.pad_token = tokenizer.eos_token
-# generation_params = GenerationParameters({})
-# model = WhiteboxModel(
-#     model_llama, tokenizer, model_name, "CausalLM", generation_params
-# )
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Run debate simulation with specified parameters.")
+    parser.add_argument(
+        "--model_name",
+        type=str,
+        default="/data/hf_models/Llama-3.1-8B-Instruct",
+        help="Path or name of the model to use (default: /data/hf_models/Llama-3.1-8B-Instruct)",
+    )
+    parser.add_argument(
+        "--agents",
+        type=int,
+        default=4,
+        help="Number of agents in the debate (default: 4)",
+    )
+    parser.add_argument(
+        "--rounds",
+        type=int,
+        default=3,
+        help="Number of rounds in the debate (default: 3)",
+    )
+    parser.add_argument(
+        "--trials",
+        type=int,
+        default=1,
+        help="Number of trials to run (default: 1)",
+    )
+    parser.add_argument(
+        "--data_path",
+        type=str,
+        default="/home/wanglichao/debunc/src/subset_data_mmlu.json",
+        help="Path to the JSON file containing questions (default: /home/wanglichao/debunc/src/subset_data_mmlu.json)",
+    )
+    parser.add_argument(
+        "--output_dir",
+        type=str,
+        default="results",
+        help="Directory to save the result JSON files (default: results)",
+    )
+    return parser.parse_args()
 
-# quit()
-model_name_sim = model_name.split("/")[-1]
-
-ue_method = MeanTokenEntropy()
 
 if __name__ == "__main__":
-    agents = 6
-    rounds = 5
-    trials = 1
-    print(f"saving to results/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{ue_method.__class__.__name__}.json")
+    args = parse_arguments()
+
+    # Load parameters from argparse
+    model_name = args.model_name
+    agents = args.agents
+    rounds = args.rounds
+    trials = args.trials
+    data_path = args.data_path
+    output_dir = args.output_dir
+
+    # Ensure the output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    print(f"Loading model {model_name}")
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    # config = AutoConfig.from_pretrained(model_name)
+    # config.max_position_embeddings = 9216  # 修改最大位置嵌入
+
+    model = WhiteboxModel.from_pretrained(
+        model_name,
+        device_map="auto",
+        # torch_dtype=torch.bfloat16,
+        # config=config,
+    )
+    print(f"model device: {model.model.device}")
+    model_name_sim = model_name.split("/")[-1]
+    ue_method = MeanTokenEntropy()
+
+    print(
+        f"saving to {output_dir}/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{ue_method.__class__.__name__}.json"
+    )
+
     for num_shots in [0]:
-        questions = json.load(open("/home/wanglichao/debunc/src/subset_data_mmlu.json"))
-        filename = f"results/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}.json"
+        questions = json.load(open(data_path))
+        filename = f"{output_dir}/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}.json"
 
         print(f"start agent: {agents}, rounds: {rounds}, trials: {trials}, num_shots: {num_shots}")
         all_trial_data = []
@@ -98,7 +134,7 @@ if __name__ == "__main__":
                             uncertainties.append(agent["uncertainty"])
                         confidences = 1 / np.array(uncertainties)
                     for i, agent_context in enumerate(agent_contexts):
-                        if confidences is not None:
+                        if confidences is not None:  # build from the second round
                             agent_contexts_other = (
                                 agent_contexts[:i] + agent_contexts[i + 1 :]
                             )
@@ -112,8 +148,8 @@ if __name__ == "__main__":
                                 other_confidences=other_confidences,
                                 conv_idx=2 * round - 1,
                                 tokenizer=tokenizer,
-                            )
-                            agent_context.append(message)
+                            )  # message is the user message with other agents' responses
+                            agent_context.append(message)  #
 
                         completion, uncertainty = generate_answer_uncertainty(
                             agent_context, model, tokenizer, ue_method

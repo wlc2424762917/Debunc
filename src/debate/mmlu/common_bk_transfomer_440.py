@@ -67,28 +67,22 @@ def construct_message_attention_all(
         raise ValueError("Unknown tokenizer")
     range_weights = []
     this_agent = this_agent.copy()
-    print(f"tokenizer.name_or_path: {tokenizer.name_or_path}")
-    if "Llama-3.1-8B-Instruct" in tokenizer.name_or_path:
-        print("building message for Llama-3.1-8B-Instruct")
-        len_before_prev = get_len(this_agent[:-1], tokenizer) + 4+25  # <|begin_of_text|><|start_header_id|>system<|end_header_id|> (Cutting Knowledge Date: December 2023) is 25 tokens
-    else:
-        print("building message for Llama-3-8B-Instruct/Mistral")
-        len_before_prev = get_len(this_agent[:-1], tokenizer) + 4  # <|eot_id|><|start_header_id|>user<|end_header_id|>
+    len_before_prev = get_len(this_agent[:-1], tokenizer) + 4
     current_len = get_len(this_agent, tokenizer) + offset
     range_weights.append(RangeWeight(len_before_prev, current_len, this_confidence))
 
     prefix_string = START_PREFIX_STD
 
     this_agent.append({"role": "user", "content": prefix_string})
-    current_len = get_len(this_agent, tokenizer)  # length of <this agent response> + "These are solutions to the problem from other agents: "
+    current_len = get_len(this_agent, tokenizer)
 
     for agent, confidence in zip(other_agents, other_confidences):
         agent_response = agent[conv_idx]["content"]
         prefix_string += f"\n\n One agent solution: ```{agent_response}```"
 
-        this_agent[-1] = {"role": "user", "content": prefix_string}  # update the last message
-        new_len = get_len(this_agent, tokenizer)  # get the new length
-        range_weights.append(RangeWeight(current_len, new_len, confidence))  # range weight start: current_len, end: new_len
+        this_agent[-1] = {"role": "user", "content": prefix_string}
+        new_len = get_len(this_agent, tokenizer)
+        range_weights.append(RangeWeight(current_len, new_len, confidence))
         current_len = new_len
 
     prefix_string += END_PREFIX

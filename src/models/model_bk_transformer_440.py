@@ -18,8 +18,7 @@ from transformers import (
     StoppingCriteriaList,
     PreTrainedTokenizer,
 )
-# from models.modeling_llama import LlamaForCausalLM
-from models.modeling_llama_442 import LlamaForCausalLM
+from models.modeling_llama import LlamaForCausalLM
 # from transformers import LlamaForCausalLM
 from models.modeling_mistral import MistralForCausalLM
 

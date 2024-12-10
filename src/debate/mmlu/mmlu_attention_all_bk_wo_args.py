@@ -1,5 +1,4 @@
 import json
-
 import numpy as np
 import torch
 from debate.gen_utils import (
@@ -9,36 +8,68 @@ from debate.gen_utils import (
     generate_answer_uncertainty,
 )
 from debate.mmlu.common import (
-    construct_message_attention_others,
+    construct_message_attention_all,
 )
 from lm_polygraph.estimators import MeanTokenEntropy, TokenSAR
 from models.model import WhiteboxModel
+from transformers import LlamaForCausalLM, LlamaTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
+from lm_polygraph.utils.generation_parameters import GenerationParameters
 from tqdm import trange
-from transformers import AutoTokenizer
-
-# model_name = "mistralai/Mistral-7B-Instruct-v0.2"
-model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
+import os
+import time
+os.environ.get("PYTORCH_CUDA_ALLOC_CONF")
+# model_name = "/data/hf_models/Mistral-7B-Instruct"
+# model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
+model_name = "/data/hf_models/Llama-3.1-8B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
+print(f"Loading model {model_name}")
+
+config = AutoConfig.from_pretrained(model_name)
+config.max_position_embeddings = 10000  # 修改最大位置嵌入
+
 model = WhiteboxModel.from_pretrained(
     model_name,
     device_map="auto",
-    torch_dtype=torch.bfloat16,
+    # torch_dtype=torch.bfloat16,
+    config=config,
 )
+# model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+# model_llama = LlamaForCausalLM.from_pretrained(model_name, device_map="auto")
+# print(model_llama)
+#
+# tokenizer = AutoTokenizer.from_pretrained(
+#             model_name,
+#             device_map="auto"
+#         )
+#
+# model_llama.eval()
+# if tokenizer.pad_token is None:
+#     tokenizer.pad_token = tokenizer.eos_token
+# generation_params = GenerationParameters({})
+# model = WhiteboxModel(
+#     model_llama, tokenizer, model_name, "CausalLM", generation_params
+# )
+
+# quit()
+model_name_sim = model_name.split("/")[-1]
 
 ue_method = MeanTokenEntropy()
 
 if __name__ == "__main__":
-    agents = 3
+    agents = 4
     rounds = 3
-    trials = 5
+    trials = 1
+    print(f"saving to results/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{ue_method.__class__.__name__}.json")
+    for num_shots in [0]:
+        questions = json.load(open("/home/wanglichao/debunc/src/subset_data_mmlu.json"))
+        filename = f"results/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}.json"
 
-    for num_shots in [0, 5]:
-        questions = json.load(open(f"data/qas_{num_shots}_shot.json"))
-        filename = f"results/{os.path.basename(__file__)[:-3]}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}.json"
-
+        print(f"start agent: {agents}, rounds: {rounds}, trials: {trials}, num_shots: {num_shots}")
         all_trial_data = []
         current_trial = 0
-
+        start_time = time.time()
+        dump_time = 0
         for trial in trange(trials):
             current_question = 0
             response_dict = {}
@@ -74,8 +105,9 @@ if __name__ == "__main__":
                             other_confidences = np.concatenate(
                                 (confidences[:i], confidences[i + 1 :])
                             )
-                            message = construct_message_attention_others(
+                            message = construct_message_attention_all(
                                 this_agent=agent_context,
+                                this_confidence=confidences[i],
                                 other_agents=agent_contexts_other,
                                 other_confidences=other_confidences,
                                 conv_idx=2 * round - 1,
@@ -91,6 +123,7 @@ if __name__ == "__main__":
                         assistant_message["uncertainty"] = uncertainty
                         agent_context.append(assistant_message)
 
+                    tmp_dump_time_start = time.time()
                     response_dict[question] = (agent_contexts, answer)
                     all_trial_data[-1] = response_dict
                     json.dump(
@@ -98,3 +131,14 @@ if __name__ == "__main__":
                         open(filename, "w"),
                         cls=RWJSONEncoder,
                     )
+                    tmp_dump_time_end = time.time()
+                    tmp_dump_time = tmp_dump_time_end - tmp_dump_time_start
+                    dump_time += tmp_dump_time
+
+        end_time = time.time()
+        print(f"Time taken: {end_time - start_time}")
+        ## hours, minutes, seconds
+        print(f"Time taken: {(end_time - start_time) // 3600}h {((end_time - start_time) % 3600) // 60}m {((end_time - start_time) % 3600) % 60}s")
+        print(f"Dump time: {dump_time}")
+        print(f"Total inference time: {end_time - start_time - dump_time}")
+        print(f"Total inference time: {(end_time - start_time - dump_time) // 3600}h {((end_time - start_time - dump_time) % 3600) // 60}m {((end_time - start_time - dump_time) % 3600) % 60}s")
