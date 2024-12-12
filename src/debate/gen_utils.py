@@ -71,9 +71,9 @@ def generate_answer_uncertainty(
     prompt = tokenizer.apply_chat_template(
         answer_context, tokenize=False, add_generation_prompt=True
     )
-    print("**************prompt**************")
-    print(prompt)
-    print("************end prompt************")
+    # print("**************prompt**************")
+    # print(prompt)
+    # print("************end prompt************")
     if "range_weights" in answer_context[-1]:
         model.range_weights = answer_context[-1]["range_weights"]
     out = estimate_uncertainty(model, ue_method, input_text=prompt)
