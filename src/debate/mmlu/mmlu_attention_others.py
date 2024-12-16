@@ -73,6 +73,7 @@ if __name__ == "__main__":
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
     model_name_sim = model_name.split("/")[-1]
+    data_sim = data_dir.split("/")[-1]
     # Load the model and tokenizer
     print(f"Loading model: {model_name}")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -85,13 +86,13 @@ if __name__ == "__main__":
 
     for num_shots in [0]:
         # Load the question file
-        question_file = f"{data_dir}/qas_{num_shots}_shot.json"
+        question_file = data_dir
         if not os.path.exists(question_file):
             raise FileNotFoundError(f"Question file not found: {question_file}")
         questions = json.load(open(question_file))
 
         # Construct the output filename
-        filename = f"{output_dir}/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}_442.json"
+        filename = f"{output_dir}/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}_442_data_sim.json"
 
         all_trial_data = []
         current_trial = 0
@@ -161,4 +162,7 @@ if __name__ == "__main__":
 
 """
     CUDA_VISIBLE_DEVICES=1 python ./mmlu_attention_others.py --model_name=/data/hf_models/Llama-3.1-8B-Instruct --agents=3 --rounds=3 --trials=5 --data_dir=data --output_dir=reimplementation_results
+    
+    CUDA_VISIBLE_DEVICES=5,6,7 python ./mmlu_attention_others.py --model_name=/data/hf_models/Llama-3.1-8B-Instruct --agents=3 --rounds=2 --trials=1 --data_dir=/home/wanglichao/debunc/src/subset_data_mmlu.json --output_dir=reimplementation_results
+
 """
