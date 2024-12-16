@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
-
+    model_name_sim = model_name.split("/")[-1]
     # Load the model and tokenizer
     print(f"Loading model: {model_name}")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     )
     ue_method = MeanTokenEntropy()
 
-    for num_shots in [0, 5]:
+    for num_shots in [0]:
         # Load the question file
         question_file = f"{data_dir}/qas_{num_shots}_shot.json"
         if not os.path.exists(question_file):
@@ -91,7 +91,7 @@ if __name__ == "__main__":
         questions = json.load(open(question_file))
 
         # Construct the output filename
-        filename = f"{output_dir}/{os.path.basename(__file__)[:-3]}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}.json"
+        filename = f"{output_dir}/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}.json"
 
         all_trial_data = []
         current_trial = 0
@@ -160,5 +160,5 @@ if __name__ == "__main__":
                     )
 
 """
-    CUDA_VISIBLE_DEVICES=3,4,5 python ./mmlu_attention_others.py --model_name=/data/hf_models/Llama-3.1-8B-Instruct --agents=3 --rounds=3 --trials=5 --data_dir=data --output_dir=reimplementation_results
+    python ./mmlu_attention_others.py --model_name=/data/hf_models/Llama-3.1-8B-Instruct --agents=3 --rounds=3 --trials=5 --data_dir=data --output_dir=reimplementation_results
 """

@@ -84,6 +84,8 @@ def eval(filename, print_uncertainty_stats=True):
     fail_uncertainties = []
     accuracies = []
     for response_dict in trials:
+        if len(response_dict) < 100:
+            continue
         trial_accuracies = []
         for question, (responses, gt) in response_dict.items():
             pred_solutions = [response[-1]["content"] for response in responses]
@@ -144,6 +146,11 @@ if __name__ == "__main__":
     # filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_all_model_name_sim_Llama-3.1-8B-Instruct_3_2_1_0_MeanTokenEntropy.json"
     # filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_all_model_name_sim_Meta-Llama-3-8B-Instruct_3_2_1_0_MeanTokenEntropy.json"
     # filename = "/home/wanglichao/debunc/src/debate/mmlu/reimplementation_results/mmlu_attention_all_model_name_sim_Llama-3.1-8B-Instruct_3_3_1_0_MeanTokenEntropy.json"
-    filename = "/home/wanglichao/debunc/src/debate/mmlu/reimplementation_results/mmlu_standard_model_name_sim_Meta-Llama-3-8B-Instruct_3_3_1_0.json"  # standard 0.680
-
+    # filename = "/home/wanglichao/debunc/src/debate/mmlu/reimplementation_results/mmlu_standard_model_name_sim_Meta-Llama-3-8B-Instruct_3_3_1_0.json"  # standard 0.680
+    # filename = "/home/wanglichao/debunc/src/debate/mmlu/reimplementation_results/mmlu_attention_all_model_name_sim_Llama-3.1-8B-Instruct_3_3_1_0_MeanTokenEntropy.json"  # attention_all_trial_1 3.1 6.30
+    # filename = "/home/wanglichao/debunc/src/debate/mmlu/reimplementation_results/mmlu_attention_all_model_name_sim_Meta-Llama-3-8B-Instruct_3_3_1_0_MeanTokenEntropy.json"  # attention_all_trial_1 3 6.00
+    # filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_others_bk_wo_args_3_3_5_0_MeanTokenEntropy.json"  # attention_others trial_4 3 6.42
+    # filename = "/home/wanglichao/debunc/src/debate/mmlu/test_results/mmlu_attention_all_model_name_sim_Llama-3-8B-Instruct_3_3_1_0_MeanTokenEntropy.json"
+    # filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_others_bk_wo_args_3_3_5_0_MeanTokenEntropy_transformer_440.json"  # trails_4 655
+    filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_others_bk_wo_args_3_3_5_0_MeanTokenEntropy_transformer_440.json" # 654
     eval(filename)

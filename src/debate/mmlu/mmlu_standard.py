@@ -25,11 +25,11 @@ model = AutoModelForCausalLM.from_pretrained(
 if __name__ == "__main__":
     agents = 3
     rounds = 3
-    trials = 1
+    trials = 5
     model_name_sim = model_name.split("/")[-1]
-    for num_shots in [0, 5]:
+    for num_shots in [0]:
         questions = json.load(open(f"data/qas_{num_shots}_shot.json"))
-        filename = f"reimplementation_results/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}.json"
+        filename = f"reimplementation_results/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_transformer_440.json"
         all_trial_data = []
         current_trial = 0
 
