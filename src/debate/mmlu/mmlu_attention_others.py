@@ -91,7 +91,7 @@ if __name__ == "__main__":
         questions = json.load(open(question_file))
 
         # Construct the output filename
-        filename = f"{output_dir}/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}.json"
+        filename = f"{output_dir}/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}_442.json"
 
         all_trial_data = []
         current_trial = 0
@@ -160,5 +160,5 @@ if __name__ == "__main__":
                     )
 
 """
-    python ./mmlu_attention_others.py --model_name=/data/hf_models/Llama-3.1-8B-Instruct --agents=3 --rounds=3 --trials=5 --data_dir=data --output_dir=reimplementation_results
+    CUDA_VISIBLE_DEVICES=1 python ./mmlu_attention_others.py --model_name=/data/hf_models/Llama-3.1-8B-Instruct --agents=3 --rounds=3 --trials=5 --data_dir=data --output_dir=reimplementation_results
 """

@@ -152,5 +152,6 @@ if __name__ == "__main__":
     # filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_others_bk_wo_args_3_3_5_0_MeanTokenEntropy.json"  # attention_others trial_4 3 6.42
     # filename = "/home/wanglichao/debunc/src/debate/mmlu/test_results/mmlu_attention_all_model_name_sim_Llama-3-8B-Instruct_3_3_1_0_MeanTokenEntropy.json"
     # filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_others_bk_wo_args_3_3_5_0_MeanTokenEntropy_transformer_440.json"  # trails_4 655
-    filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_others_bk_wo_args_3_3_5_0_MeanTokenEntropy_transformer_440.json" # 654
+    # filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_others_bk_wo_args_3_3_5_0_MeanTokenEntropy_transformer_440.json" # 654
+    # filename = "/home/wanglichao/debunc/src/debate/mmlu/reimplementation_results/mmlu_standard_model_name_sim_Meta-Llama-3-8B-Instruct_3_3_5_0_transformer_440.json" 634
     eval(filename)
