@@ -18,8 +18,11 @@ from lm_polygraph.estimators import MeanTokenEntropy, TokenSAR
 from models.model import WhiteboxModel
 from tqdm import trange
 from transformers import AutoTokenizer
+import time
 
-model_name = "mistralai/Mistral-7B-Instruct-v0.2"
+# model_name = "mistralai/Mistral-7B-Instruct-v0.2"
+model_name = "/data/hf_models/Meta-Llama-3.1-70B-Instruct"
+
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = WhiteboxModel.from_pretrained(
     model_name,
@@ -33,11 +36,12 @@ ue_method = MeanTokenEntropy()
 if __name__ == "__main__":
     agents = 3
     rounds = 3
-    trials = 5
+    trials = 1
     questions = 100
 
     np.random.seed(0)
 
+    start_time = time.time()
     all_trial_data: List[Debates] = []
     for trial in trange(trials):
         response_dict: Debates = {}
@@ -92,3 +96,6 @@ if __name__ == "__main__":
                     ),
                     cls=RWJSONEncoder,
                 )
+    end_time = time.time()
+    print(f"Total time: {end_time - start_time}")
+    print(f"formatted time: {time.strftime('%H:%M:%S', time.gmtime(end_time - start_time))}")

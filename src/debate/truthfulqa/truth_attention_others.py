@@ -19,7 +19,9 @@ from models.model import WhiteboxModel
 from tqdm import tqdm, trange
 from transformers import AutoTokenizer
 
-model_name = "mistralai/Mistral-7B-Instruct-v0.2"
+# model_name = "mistralai/Mistral-7B-Instruct-v0.2"
+model_name = "/data/hf_models/Meta-Llama-3.1-70B-Instruct"
+
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = WhiteboxModel.from_pretrained(
     model_name,
@@ -33,7 +35,7 @@ ue_method = MeanTokenEntropy()
 if __name__ == "__main__":
     agents = 3
     rounds = 3
-    trials = 5
+    trials = 1
     questions = 100
 
     np.random.seed(0)
@@ -87,7 +89,7 @@ if __name__ == "__main__":
                 json.dump(
                     all_trial_data,
                     open(
-                        f"truth_{agents}_{rounds}_{trials}_attention_others_{ue_method.__class__.__name__}.json",
+                        f"truth_{agents}_{rounds}_{trials}_attention_others_{ue_method.__class__.__name__}_70b.json",
                         "w",
                     ),
                     cls=RWJSONEncoder,

@@ -58,7 +58,7 @@ def parse_arguments():
     )
     return parser.parse_args()
 
-
+import time
 if __name__ == "__main__":
     # Parse command-line arguments
     args = parse_arguments()
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         torch_dtype=torch.bfloat16,
     )
     ue_method = MeanTokenEntropy()
-
+    start_time = time.time()
     for num_shots in [0]:
         # Load the question file
         question_file = data_dir
@@ -92,11 +92,11 @@ if __name__ == "__main__":
         questions = json.load(open(question_file))
 
         # Construct the output filename
-        filename = f"{output_dir}/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}_442_data_sim.json"
+        filename = f"{output_dir}/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_{ue_method.__class__.__name__}_442_data_sim_{data_sim}.json"
 
         all_trial_data = []
         current_trial = 0
-
+        print(f"Saving to: {filename}")
         for trial in trange(trials, desc="Trials"):
             current_question = 0
             response_dict = {}
@@ -159,10 +159,18 @@ if __name__ == "__main__":
                         open(filename, "w"),
                         cls=RWJSONEncoder,
                     )
+        end_time = time.time()
+        print(f"Time taken: {end_time - start_time} seconds")
+        print(f"formated time taken: {time.strftime('%H:%M:%S', time.gmtime(end_time - start_time))}")
 
 """
-    CUDA_VISIBLE_DEVICES=1 python ./mmlu_attention_others.py --model_name=/data/hf_models/Llama-3.1-8B-Instruct --agents=3 --rounds=3 --trials=5 --data_dir=data --output_dir=reimplementation_results
+    CUDA_VISIBLE_DEVICES=1,2,3,4,5 python ./mmlu_attention_others.py --model_name=/data/hf_models/Llama-3.1-8B-Instruct --agents=3 --rounds=3 --trials=5 --data_dir=/home/wanglichao/debunc/src/debate/mmlu/data/qas_0_shot.json --output_dir=reimplementation_results
     
     CUDA_VISIBLE_DEVICES=5,6,7 python ./mmlu_attention_others.py --model_name=/data/hf_models/Llama-3.1-8B-Instruct --agents=3 --rounds=2 --trials=1 --data_dir=/home/wanglichao/debunc/src/subset_data_mmlu.json --output_dir=reimplementation_results
+
+    python ./mmlu_attention_others.py --model_name=/data/hf_models/Llama-3.1-8B-Instruct --agents=4 --rounds=3 --trials=1 --data_dir=/home/wanglichao/debunc/src/subset_data_mmlu.json --output_dir=results_sub
+    
+    python ./mmlu_attention_others.py --model_name=/data/hf_models/Meta-Llama-3.1-70B-Instruct --agents=3 --rounds=3 --trials=1 --data_dir=/home/wanglichao/debunc/src/debate/mmlu/data/qas_0_shot.json --output_dir=results
+
 
 """

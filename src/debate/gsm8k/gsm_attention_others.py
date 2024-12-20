@@ -23,7 +23,9 @@ from models.model import WhiteboxModel
 from tqdm import trange
 from transformers import AutoTokenizer
 
-model_name = "mistralai/Mistral-7B-Instruct-v0.2"
+# model_name = "mistralai/Mistral-7B-Instruct-v0.2"
+model_name = "/data/hf_models/Meta-Llama-3.1-70B-Instruct"
+
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = WhiteboxModel.from_pretrained(
     model_name,
@@ -32,22 +34,24 @@ model = WhiteboxModel.from_pretrained(
 )
 
 ue_method = MeanTokenEntropy()
-
+import time
 
 if __name__ == "__main__":
     agents = 3
     rounds = 3
-    trials = 5
+    trials = 1
 
     random.seed(0)
     questions = read_jsonl("./data/test.jsonl")
     random.shuffle(questions)
 
+    start_time = time.time()
     all_trial_data: List[Debates] = []
     for trial in trange(trials):
         response_dict: Debates = {}
         all_trial_data.append(response_dict)
         for q_i, data in enumerate(questions[:100]):
+            print(f"Trial {trial}, Question {q_i}")
             question = data["question"]
             answer = data["answer"]
             formatted_question = format_question(question)
@@ -101,3 +105,6 @@ if __name__ == "__main__":
                     ),
                     cls=RWJSONEncoder,
                 )
+    end_time = time.time()
+    print(f"Time taken: {end_time - start_time}")
+    print(f"formatted_time: {time.strftime('%H:%M:%S', time.gmtime(end_time - start_time))}")

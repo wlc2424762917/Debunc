@@ -79,6 +79,7 @@ def get_uncertainties(responses, gt):
 def eval(filename, print_uncertainty_stats=True):
     trials = json.load(open(filename, "r"))
     print(len(trials), len(trials[-1]))
+    # trials = trials[0:1]
     correct_uncertainties = []
     incorrect_uncertainties = []
     fail_uncertainties = []
@@ -153,5 +154,7 @@ if __name__ == "__main__":
     # filename = "/home/wanglichao/debunc/src/debate/mmlu/test_results/mmlu_attention_all_model_name_sim_Llama-3-8B-Instruct_3_3_1_0_MeanTokenEntropy.json"
     # filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_others_bk_wo_args_3_3_5_0_MeanTokenEntropy_transformer_440.json"  # trails_4 655
     # filename = "/home/wanglichao/debunc/src/debate/mmlu/results/mmlu_attention_others_bk_wo_args_3_3_5_0_MeanTokenEntropy_transformer_440.json" # 654
-    # filename = "/home/wanglichao/debunc/src/debate/mmlu/reimplementation_results/mmlu_standard_model_name_sim_Meta-Llama-3-8B-Instruct_3_3_5_0_transformer_440.json" 634
+    # filename = "/home/wanglichao/debunc/src/debate/mmlu/reimplementation_results/mmlu_standard_model_name_sim_Meta-Llama-3-8B-Instruct_3_3_5_0_transformer_440.json" # 634
+    filename = "/home/wanglichao/debunc/src/debate/mmlu/reimplementation_results/mmlu_attention_others_model_name_sim_Llama-3.1-8B-Instruct_3_3_5_0_MeanTokenEntropy_442.json"  # 634
+    # filename = "/home/wanglichao/debunc/src/debate/mmlu/reimplementation_results/mmlu_attention_others_model_name_sim_Llama-3.1-8B-Instruct_3_2_1_0_MeanTokenEntropy_442_data_sim.json"
     eval(filename)

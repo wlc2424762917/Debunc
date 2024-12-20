@@ -13,7 +13,9 @@ from tqdm import trange
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # model_name = "mistralai/Mistral-7B-Instruct-v0.2"
-model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
+# model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
+model_name = "/data/hf_models/Llama-3.1-8B-Instruct"
+
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
@@ -29,7 +31,8 @@ if __name__ == "__main__":
     model_name_sim = model_name.split("/")[-1]
     for num_shots in [0]:
         questions = json.load(open(f"data/qas_{num_shots}_shot.json"))
-        filename = f"reimplementation_results/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_transformer_440.json"
+        filename = f"reimplementation_results/{os.path.basename(__file__)[:-3]}_model_name_sim_{model_name_sim}_{agents}_{rounds}_{trials}_{num_shots}_transformer_442.json"
+        print(f"saving to {filename}")
         all_trial_data = []
         current_trial = 0
 
